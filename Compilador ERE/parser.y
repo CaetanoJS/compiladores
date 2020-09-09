@@ -1,3 +1,5 @@
+/* Caetano Jaeger Stradolini */
+
 %token KW_CHAR       
 %token KW_INT        
 %token KW_FLOAT      

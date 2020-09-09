@@ -1,3 +1,5 @@
+/* Caetano Jaeger Stradolini */
+
 %{
     #include "parser.tab.h"
     #include "hash.h"

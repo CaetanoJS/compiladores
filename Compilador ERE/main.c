@@ -1,3 +1,5 @@
+/* Caetano Jaeger Stradolini */
+
 int main(int argc, char ** argv)
 {
     hashInit();
