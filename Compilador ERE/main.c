@@ -10,7 +10,7 @@ int main(int argc, char ** argv)
     if (yyin==0)
     {
         fprintf(stderr, "Cannot open file %s\n",argv[1]);
-        exit(1);
+        exit(2);
     }
     int tok;
 

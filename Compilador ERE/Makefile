@@ -1,9 +1,9 @@
-etapa2: parser.tab.c lex.yy.c
+etapa2: y.tab.c lex.yy.c
 	gcc -o etapa2 lex.yy.c hash.c
-parser.tab.c: parser.y
-	bison -v parser.y
+y.tab.c: parser.y
+	yacc -d parser.y
 lex.yy.c: scanner.l
-	flex scanner.l
+	lex scanner.l
 
 clean:
-	rm lex.yy.c parser.tab.c etapa2.exe
+	rm lex.yy.c y.tab.c y.tab.h etapa2
