@@ -1,7 +1,7 @@
 /* Caetano Jaeger Stradolini */
 
 %{
-    #include "parser.tab.h"
+    #include "y.tab.h"
     #include "hash.h"
     int Running = 1;
     int LineNumber = 1;
