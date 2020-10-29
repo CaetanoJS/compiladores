@@ -1,0 +1,7 @@
+b = bool : FALSE;
+c = char : 'x';
+a = int : 0;
+i = int : 0;
+f = float : 0.0;
+v1 = int [int] : 0 0 0 0 0 0 0 0 0 0;
+mat = int [int];
