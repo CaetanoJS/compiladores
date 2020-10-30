@@ -1504,7 +1504,7 @@ yyreduce:
 
 /* Line 1455 of yacc.c  */
 #line 78 "parser.y"
-    { root = (yyval.ast) ; check_and_set_declarations((yyvsp[(1) - (1)].ast)); check_undeclared();;}
+    { root = (yyval.ast) ; check_and_set_declarations((yyvsp[(1) - (1)].ast)); check_undeclared(); check_operands((yyvsp[(1) - (1)].ast));;}
     break;
 
   case 3:
