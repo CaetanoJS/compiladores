@@ -75,6 +75,7 @@ void astPrint(AST *node, int level)
     case AST_LIT_LIST: fprintf(stderr, "AST_LIT_LIST"); break;
     case AST_VECTOR_DECL: fprintf(stderr, "AST_VECTOR_DECL"); break;
     case AST_PRINT_ARGS_LIST: fprintf(stderr, "AST_PRINT_ARGS_LIST"); break;
+    case AST_PARENTHESES_EXPR: fprintf(stderr, "AST_PARENTHESES_EXPR"); break;
 
     default: fprintf(stderr,"AST_UNKNOWN"); break;
     }

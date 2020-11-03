@@ -7,6 +7,10 @@
 #include <stdlib.h>
 
 #define HASH_SIZE 997
+#define DATATYPE_CHAR 1
+#define DATATYPE_INT 2
+#define DATATYPE_FLOAT 3
+#define DATATYPE_BOOL 4
 
 typedef struct hash_node
 {
