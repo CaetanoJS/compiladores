@@ -2,7 +2,135 @@
 #include "semantic.h"
 #include "parser.tab.h"
 
+#define FUNC_PARAMS_MAX_LENGHT 100
 int SemanticErrors = 0;
+PARAMS_FUNC* funcParams[FUNC_PARAMS_MAX_LENGHT];
+
+void clear_func_params()
+{
+    int i;
+    for (i = 0 ; i < FUNC_PARAMS_MAX_LENGHT ; i++)
+    {
+        funcParams[i] = NULL;
+    }
+}
+
+void add_to_params(AST *node)
+{
+
+    int i;
+    if (node == 0)
+        return;
+
+    switch (node->type)
+    {
+        case AST_PARAMS_FUNC:
+        {
+
+            int x;
+            for (x = 0 ; x < FUNC_PARAMS_MAX_LENGHT ; x++)
+            {
+                if(!funcParams[x])
+                {
+                    funcParams[x] = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
+                    funcParams[x]->text = node->symbol->text;
+                    funcParams[x]->type = node->symbol->datatype;
+                    break;
+                }
+            }
+
+            add_to_params(node->son[1]);
+            break;
+        }
+
+        case AST_PARAMS_FUNC_LIST:
+        {
+            int x;
+            for (x = 0 ; x < FUNC_PARAMS_MAX_LENGHT ; x++)
+            {
+                if(!funcParams[x])
+                {
+                    funcParams[x] = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
+                    funcParams[x]->text = node->symbol->text;
+                    funcParams[x]->type = node->symbol->datatype;
+                    break;
+                }
+            }
+            add_to_params(node->son[1]);
+            break;
+        }
+        default:
+            for( i=0 ; i < MAX_SONS ; ++i)
+                add_to_params(node->son[i]);
+    }
+}
+
+void set_func_params(AST *node)
+{
+    int i;
+    if (node == 0)
+        return;
+
+    switch (node->type)
+    {
+        case AST_FUNCTION_DECL:
+        {
+            PARAMS_FUNC *params;
+            clear_func_params();
+            add_to_params(node->son[0]);
+
+            int params_count = 0;
+            for (params_count = 0 ; params_count < 100 ; params_count++)
+            {
+                if(!funcParams[params_count])
+                {
+                    break;
+                }
+            }
+
+            int ind = 0;
+            node->symbol->paramsFunc = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
+            for (params=node->symbol->paramsFunc; params; params = params->next)
+            {
+                params->text = funcParams[ind]->text;
+                params->type = funcParams[ind]->type;
+
+                ind = ind + 1;
+
+                if(ind < params_count)
+                {
+                    params->next = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
+                }
+            }
+            printf("Function: %s\n", node->symbol->text);
+            for (params=node->symbol->paramsFunc; params; params = params->next)
+            {
+                printf("paramsFunc->type: %i\n", params->type);
+                printf("paramsFunc->text: %s\n", params->text);
+
+                ind = ind + 1;
+
+                if(ind < params_count)
+                {
+                    params->next = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
+                }
+            }
+            printf("\n");
+            clear_func_params();
+            break;
+        }
+    
+        default:
+            for( i=0 ; i < MAX_SONS ; ++i)
+                set_func_params(node->son[i]);
+    }
+
+}
+
+void check_func_call(AST *node)
+{
+
+}
 
 void check_and_set_declarations(AST *node){
     int i;
@@ -30,6 +158,40 @@ void check_and_set_declarations(AST *node){
                 }
                 node->symbol->type = TK_VECTOR;
                 set_datatype_for_identifiers(node, 0);
+                int litList = check_operands(node->son[2]);
+
+                if(isInt(return_symbol(node->symbol)))
+                {
+                    if(!(isInt(litList)))
+                    {
+                        fprintf(stderr, "Semantic ERROR: variable '%s' is declared as int but is not initialized with int values\n", node->symbol->text);
+                        ++ SemanticErrors;
+                    }
+                }
+                if(isBool(return_symbol(node->symbol)))
+                {
+                    if(!(isBool(litList)))
+                    {
+                        fprintf(stderr, "Semantic ERROR: variable '%s' is declared as bool but is not initialized with bool values\n", node->symbol->text);
+                        ++ SemanticErrors;
+                    }
+                }
+                if(isFloat(return_symbol(node->symbol)))
+                {
+                    if(!(isFloat(litList)))
+                    {
+                        fprintf(stderr, "Semantic ERROR: variable '%s' is declared as float but is not initialized with float values\n", node->symbol->text);
+                        ++ SemanticErrors;
+                    }
+                }
+                if(isChar(return_symbol(node->symbol)))
+                {
+                    if(!(isChar(litList)))
+                    {
+                        fprintf(stderr, "Semantic ERROR: variable '%s' is declared as char but is not initialized with char values\n", node->symbol->text);
+                        ++ SemanticErrors;
+                    }
+                }
             break;
         case AST_VARIABLE_DECL:
             if(node->symbol)
@@ -40,6 +202,27 @@ void check_and_set_declarations(AST *node){
                 }
                 node->symbol->type = TK_VARIABLE;
                 set_datatype_for_identifiers(node, 0);
+                if(isBool(node->son[1]->symbol->type))
+                {
+                    if(isInt(return_symbol(node->symbol)))
+                    {
+                        fprintf(stderr, "scalar variable '%s' is declared as int but is initialized with bool values\n", node->symbol->text);
+                        ++ SemanticErrors;   
+                        }
+                    if(isFloat(return_symbol(node->symbol)))
+                    {
+                        fprintf(stderr, "scalar variable '%s' is declared as float but is initialized with bool values\n", node->symbol->text);
+                        ++ SemanticErrors;   
+                    }
+                }
+                if(isNumber(node->son[1]->symbol->type))
+                {
+                    if(isBool(return_symbol(node->symbol)))
+                    {
+                        fprintf(stderr, "scalar variable '%s' is declared as bool but is initialized with number values\n", node->symbol->text);
+                        ++ SemanticErrors;   
+                    }
+                }
             break;
         case AST_FUNCTION_DECL:
             if(node->symbol)
@@ -75,6 +258,7 @@ void check_and_set_declarations(AST *node){
 
     for( i=0 ; i < MAX_SONS ; ++i)
         check_and_set_declarations(node->son[i]);
+        
 }
 
 void set_datatype_for_identifiers(AST *node, int sonNumber){
@@ -102,6 +286,16 @@ int isInt(int type)
 int isBool(int type)
 {
     return (type == DATATYPE_BOOL || type == LIT_TRUE || type == LIT_FALSE);
+}
+
+int isFloat(int type)
+{
+    return (type == DATATYPE_FLOAT || type == LIT_FLOAT);
+}
+
+int isChar(int type)
+{
+    return (type == DATATYPE_CHAR || type == KW_CHAR);
 }
 
 int return_symbol(HASH_NODE *symbol)
@@ -168,6 +362,56 @@ void check_commands(AST *node)
 
     switch (node->type)
     {
+        case AST_LOOP:
+        {
+            if (node->symbol->type == TK_FUNCTION)
+            {
+                fprintf(stderr, "Semantic ERROR: identifier in 'loop' method cannot be a function\n");
+                ++ SemanticErrors;               
+            }
+            break;
+        }
+        case AST_WHILE:
+        {
+            int exprType = check_operands(node->son[0]);
+            check_commands(node->son[1]);
+
+            if (!(isBool(exprType)))
+            {
+                fprintf(stderr, "Semantic ERROR: the condition of 'while' method is not bool\n");
+                ++ SemanticErrors;      
+            }
+
+            break;
+        }
+        case AST_IF_ELSE:
+        case AST_IF:
+        {
+            int exprType = check_operands(node->son[0]);
+            check_commands(node->son[1]);
+            
+            if(node->son[2])
+                check_commands(node->son[2]);
+
+            if (!(isBool(exprType)))
+            {
+                fprintf(stderr, "Semantic ERROR: the condition of 'if' method is not bool\n");
+                ++ SemanticErrors;      
+            }
+
+            break;
+        }
+        case AST_READ:
+        {
+            int identifierType = return_symbol(node->symbol);
+            if (node->symbol->type == TK_FUNCTION)
+            {
+                fprintf(stderr, "Semantic ERROR: identifier of READ method is not a scalar or vector variable\n");
+                ++ SemanticErrors;               
+            }
+
+            break;
+        }
         case AST_VAR_ATTRIBUTION:
         {
             int identifierType = return_symbol(node->symbol);
@@ -232,6 +476,27 @@ int check_operands(AST *node){
 
     switch (node->type)
     {
+        case AST_LIT_LIST:
+        {
+
+            int litList = check_operands(node->son[0]);
+            int litListRest = check_operands(node->son[1]);
+            
+            if(!node->son[1])
+            {
+                return litList;
+            } else
+            {
+                if(isInt(litList) && isInt(litListRest))
+                    return LIT_INTEGER;
+                if(isBool(litList) && isBool(litListRest))
+                    return DATATYPE_BOOL;
+                if(isFloat(litList) && isFloat(litListRest))
+                    return DATATYPE_FLOAT;
+                if(isChar(litList) && isChar(litListRest))
+                    return DATATYPE_FLOAT;
+            }
+        }
         case AST_DIV:
         case AST_MULT:
         case AST_SUB:
@@ -239,9 +504,6 @@ int check_operands(AST *node){
         {
             int leftOperand = check_operands(node->son[0]);
             int rightOperand = check_operands(node->son[1]);
-
-            fprintf(stderr, "left operand %i\n", leftOperand);
-            fprintf(stderr, "right operand %i\n", rightOperand);
 
             if (!(isNumber(leftOperand)))
             {
@@ -270,10 +532,37 @@ int check_operands(AST *node){
                 return DATATYPE_FLOAT;
 
             return DATATYPE_INT;
-        }        
+        }
+        case AST_OR:
+        {
+            int leftOperand = check_operands(node->son[0]);
+            int rightOperand = check_operands(node->son[1]);
+
+            if(!(isBool(leftOperand)))
+            {
+                fprintf(stderr, "Semantic ERROR: invalid left operand for bool expr\n");
+                ++ SemanticErrors;
+            }
+            if(!(isBool(rightOperand)))
+            {
+                fprintf(stderr, "Semantic ERROR: invalid right operand for bool expr\n");
+                ++ SemanticErrors;
+            }
+            if (!check_valid_for_bool_expr(node->son[0]))
+            {
+                fprintf(stderr, "Semantic ERROR: invalid expr on the left side\n");
+                ++ SemanticErrors;               
+            }
+            if (!check_valid_for_bool_expr(node->son[1]))
+            {
+                fprintf(stderr, "Semantic ERROR: invalid expr on the right side\n");
+                ++ SemanticErrors;               
+            }
+
+            return DATATYPE_BOOL;
+        }   
         case AST_GRT:
         case AST_LESS:
-        case AST_OR:
         case AST_POW:
         case AST_LE:
         case AST_GE:
@@ -347,12 +636,4 @@ return 200;
 
 void check_undeclared(){
   SemanticErrors += hash_check_undeclared();
-}
-
-void printNode(AST *node)
-{
-    printf("node type: %i\n", node->type);
-    printf("node symbol type: %i\n", node->symbol->type);
-    printf("node symbol datatype: %i\n", node->symbol->datatype);
-    printf("node symbol text %c\n", node->symbol->text);
 }

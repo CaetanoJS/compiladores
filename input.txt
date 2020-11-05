@@ -1,14 +1,14 @@
 // UFRGS - Compiladores - Marcelo Johann - 2020/1
-
-a = int: 0;
-v = int[3]: 1 1 1;
-b = bool: 1;
-d = bool[3]: TRUE TRUE TRUE;
-
-main () = int
+incn (x = int, n = int, a = int, b = int) = int
   {
-  v[a] = (a + 1) + d[1]
+  return x+n
   };
+
+teste (c = int, d = int, e = int, f = int) = int
+  {
+  return c+d
+  };
+
   
 
 

@@ -17,8 +17,18 @@ typedef struct hash_node
     int type;
     int datatype;
     char *text;
+    struct params_func *paramsFunc;
     struct hash_node * next;
 } HASH_NODE;
+
+typedef struct params_func
+{
+    char *text;
+    int type;
+    int params_count;
+    struct params_func *next;
+
+} PARAMS_FUNC;
 
 void hashInit(void);
 int hashAddress(char *text);
