@@ -1,6 +1,5 @@
 # Caetano Jaeger Stradolini
-# 09/09/2020
-# Etapa 2 do trabalho de compiladores
+# Etapa 4 do trabalho de compiladores
 
 etapa3: main.o lex.yy.o parser.tab.o hash.o ast.o semantic.o
 	gcc main.o lex.yy.o parser.tab.o hash.o ast.o semantic.o -o etapa4

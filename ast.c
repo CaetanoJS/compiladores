@@ -1,4 +1,5 @@
-// AST - Abstract Syntax Tree
+/* AST - Abstract Syntax Tree */
+/* Caetano Jaeger Stradolini */
 
 #include <stdio.h>
 #include <stdlib.h>
