@@ -3,7 +3,7 @@
 # Etapa 2 do trabalho de compiladores
 
 etapa3: main.o lex.yy.o parser.tab.o hash.o ast.o semantic.o
-	gcc main.o lex.yy.o parser.tab.o hash.o ast.o semantic.o -o etapa3
+	gcc main.o lex.yy.o parser.tab.o hash.o ast.o semantic.o -o etapa4
 
 main.o: main.c
 	gcc -c main.c
@@ -30,4 +30,4 @@ lex.yy.c: scanner.l
 	flex scanner.l
 
 clean:
-	rm lex.yy.c parser.tab.c *.o etapa3.exe
+	rm lex.yy.c parser.tab.c *.o etapa4.exe

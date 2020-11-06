@@ -5,6 +5,12 @@
 #define FUNC_PARAMS_MAX_LENGHT 100
 int SemanticErrors = 0;
 PARAMS_FUNC* funcParams[FUNC_PARAMS_MAX_LENGHT];
+void check_syntax_errors()
+{
+    if(SemanticErrors > 0)
+        exit(4);
+}
+void check_func_call_params(AST *node, PARAMS_FUNC *paramsFunc);
 
 void clear_func_params()
 {
@@ -38,8 +44,8 @@ void add_to_params(AST *node)
                     break;
                 }
             }
-
-            add_to_params(node->son[1]);
+            if(node->son[1])
+                add_to_params(node->son[1]);
             break;
         }
 
@@ -56,7 +62,8 @@ void add_to_params(AST *node)
                     break;
                 }
             }
-            add_to_params(node->son[1]);
+            if(node->son[1])
+                add_to_params(node->son[1]);
             break;
         }
         default:
@@ -75,48 +82,47 @@ void set_func_params(AST *node)
     {
         case AST_FUNCTION_DECL:
         {
-            PARAMS_FUNC *params;
-            clear_func_params();
-            add_to_params(node->son[0]);
-
-            int params_count = 0;
-            for (params_count = 0 ; params_count < 100 ; params_count++)
+            if(node->son[0])
             {
-                if(!funcParams[params_count])
+                PARAMS_FUNC *params;
+                clear_func_params();
+                add_to_params(node->son[0]);
+
+                int params_count = 0;
+                for (params_count = 0 ; params_count < 100 ; params_count++)
                 {
-                    break;
+                    if(!funcParams[params_count])
+                    {
+                        break;
+                    }
                 }
-            }
 
-            int ind = 0;
-            node->symbol->paramsFunc = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
-            for (params=node->symbol->paramsFunc; params; params = params->next)
-            {
-                params->text = funcParams[ind]->text;
-                params->type = funcParams[ind]->type;
-
-                ind = ind + 1;
-
-                if(ind < params_count)
+                int ind = 0;
+                node->symbol->paramsFunc = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
+                for (params=node->symbol->paramsFunc; params; params = params->next)
                 {
-                    params->next = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
-                }
-            }
-            printf("Function: %s\n", node->symbol->text);
-            for (params=node->symbol->paramsFunc; params; params = params->next)
-            {
-                printf("paramsFunc->type: %i\n", params->type);
-                printf("paramsFunc->text: %s\n", params->text);
+                    params->text = funcParams[ind]->text;
+                    params->type = funcParams[ind]->type;
 
-                ind = ind + 1;
+                    ind = ind + 1;
 
-                if(ind < params_count)
-                {
-                    params->next = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
+                    if(ind < params_count)
+                    {
+                        params->next = (PARAMS_FUNC*) calloc(1, sizeof(PARAMS_FUNC));
+                    }
                 }
+                // printf("Function: %s\n", node->symbol->text);
+                // for (params=node->symbol->paramsFunc; params; params = params->next)
+                // {
+                //     printf("paramsFunc->type: %i\n", params->type);
+                //     printf("paramsFunc->text: %s\n", params->text);
+
+                //     ind = ind + 1;
+                // }
+                // printf("\n");
+                clear_func_params();
+                break;
             }
-            printf("\n");
-            clear_func_params();
             break;
         }
     
@@ -129,7 +135,78 @@ void set_func_params(AST *node)
 
 void check_func_call(AST *node)
 {
+    int i;
+    if (node == 0)
+        return;
 
+    switch (node->type)
+    {
+        case AST_FUNCTION_CALL:
+        {
+            if(node->son[0])
+                check_func_call_params(node->son[0], node->symbol->paramsFunc);
+            break;
+        }
+        default:
+        {
+            for( i=0 ; i < MAX_SONS ; ++i)
+                check_func_call(node->son[i]);
+            break;
+        }
+    }
+}
+
+void check_func_call_params(AST *node, PARAMS_FUNC *paramsFunc)
+{
+
+    int i;
+    PARAMS_FUNC *params;
+    if (node == 0)
+        return;
+
+    switch (node->type)
+    {
+        case AST_FUNCTION_ARGS_LIST:
+        case AST_FUNCTION_ARGS:
+        {
+            int firstArgs = check_operands(node->son[0]);
+            if(paramsFunc)
+            {
+                if(isNumber(firstArgs) && isNumber(paramsFunc->type))
+                {
+                    
+                } else if(isBool(firstArgs) && isBool(paramsFunc->type)){
+
+                } else {
+                    fprintf(stderr, "Semantic ERROR: arguments of function call has the type different from function declaration\n");
+                    ++ SemanticErrors;  
+                }
+            } else {
+                if(!node->son[0])
+                {
+                    fprintf(stderr, "Semantic ERROR: Declared function does not have parameters, but is called with paremeters\n");
+                    ++ SemanticErrors;
+                } 
+            }
+            if(!(node->son[1]) && paramsFunc && paramsFunc->next)
+            {
+                fprintf(stderr, "Semantic ERROR: less parameters on func call than func declaration\n");
+                ++ SemanticErrors;
+            }
+            if(node->son[1] && paramsFunc && !paramsFunc->next)
+            {
+                fprintf(stderr, "Semantic ERROR: more parameters on func call than func declaration\n");
+                ++ SemanticErrors;
+            }
+            if(paramsFunc)
+                check_func_call_params(node->son[1], paramsFunc->next);
+            break;
+        }
+        default:
+        {
+            break;
+        }
+    }  
 }
 
 void check_and_set_declarations(AST *node){

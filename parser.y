@@ -75,7 +75,7 @@
 
 %%
 
-programa: decl { root = $$ ; check_and_set_declarations($1); check_undeclared(); check_commands($1); set_func_params($1); }
+programa: decl { root = $$ ; }
     ;
     
 decl: dec ';' decl  { $$ = astCreate(AST_DECLARATION, 0, $1, $3, 0, 0); }

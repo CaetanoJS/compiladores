@@ -31,18 +31,17 @@ int main(int argc, char ** argv)
         exit(2);
     }
 
-    // if ((outputFile = fopen(argv[2], "w")) == 0)
-    // {
-    //     fprintf(stderr, "Cannot open file %s\n", argv[2]);
-
-    //     exit(4);
-    // }
-
     yyparse();
 
     // astPrint(getAST(), 0);
     hashPrint();
     // astToFile(getAST(), outputFile);
+    check_and_set_declarations(getAST()); 
+    check_undeclared(); 
+    check_commands(getAST()); 
+    set_func_params(getAST()); 
+    check_func_call(getAST());
+    check_syntax_errors();
     fprintf(stderr, "Super! Compilation successful! \n");
     exit(0);
 }
