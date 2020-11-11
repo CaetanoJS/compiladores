@@ -11,6 +11,7 @@
 #define DATATYPE_INT 2
 #define DATATYPE_FLOAT 3
 #define DATATYPE_BOOL 4
+#define SYMBOL_LABEL 5
 
 typedef struct hash_node
 {
@@ -36,6 +37,8 @@ HASH_NODE *hashFind(char *text);
 HASH_NODE *hashInsert(char *text, int type);
 void hashPrint(void);
 int hash_check_undeclared(void);
+HASH_NODE *makeTemp();
+HASH_NODE *makeLabel();
 
 #endif
 // END

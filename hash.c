@@ -69,4 +69,20 @@ int hash_check_undeclared(void){
     return undeclared;        
 }
 
+HASH_NODE *makeTemp(void)
+{
+    static int serial = 0;
+    char buffer[256] = "";
+    sprintf(buffer,"myWeeirdT_emp%d", serial++);
+    hashInsert(buffer, TK_VARIABLE);
+}
+
+HASH_NODE *makeLabel(void)
+{
+    static int serial = 0;
+    char buffer[256] = "";
+    sprintf(buffer,"myLabelT_emp%d", serial++);
+    hashInsert(buffer, SYMBOL_LABEL);
+}
+
 //END

@@ -685,6 +685,11 @@ int check_operands(AST *node){
         }
         case AST_SYMBOL:
         {   
+            if(node->symbol->type == TK_VECTOR && !node->son[0])
+            {
+                fprintf(stderr, "Semantic ERROR: vector variable used as scalar variable\n");
+                ++ SemanticErrors;   
+            }
             return return_symbol(node->symbol);
             break;
         }

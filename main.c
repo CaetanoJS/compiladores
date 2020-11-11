@@ -33,7 +33,7 @@ int main(int argc, char ** argv)
 
     yyparse();
 
-    // astPrint(getAST(), 0);
+    //astPrint(getAST(), 0);
     hashPrint();
     // astToFile(getAST(), outputFile);
     check_and_set_declarations(getAST()); 

@@ -4,6 +4,7 @@
     #include "hash.h"
     #include "ast.h"
     #include "semantic.h"
+    #include "tacs.h"
 
     int yyerror();
     int getLineNumber();
@@ -75,7 +76,7 @@
 
 %%
 
-programa: decl { root = $$ ; }
+programa: decl { root = $$ ; tacPrintBackwards(generateCode($1)); }
     ;
     
 decl: dec ';' decl  { $$ = astCreate(AST_DECLARATION, 0, $1, $3, 0, 0); }
