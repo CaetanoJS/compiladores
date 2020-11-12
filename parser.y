@@ -85,8 +85,8 @@ decl: dec ';' decl  { $$ = astCreate(AST_DECLARATION, 0, $1, $3, 0, 0); }
 
 dec:  TK_IDENTIFIER '(' paramsFunc ')' '=' types block          { $$ = astCreate(AST_FUNCTION_DECL, $1, $3, $6, $7, 0); }
     | TK_IDENTIFIER '=' types ':' literals                      { $$ = astCreate(AST_VARIABLE_DECL, $1, $3, $5, 0, 0); }
-    | TK_IDENTIFIER '=' types '[' LIT_INTEGER ']' ':' litList   { $$ = astCreate(AST_VECTOR_DECL_WITH_PARAM, $1, $3,astCreate(AST_TYPE_INT, $5, 0, 0, 0, 0), $8, 0); }
-    | TK_IDENTIFIER '=' types '[' LIT_INTEGER ']'                { $$ = astCreate(AST_VECTOR_DECL, $1, $3,astCreate(AST_TYPE_INT, $5, 0, 0, 0, 0), 0, 0); }
+    | TK_IDENTIFIER '=' types '[' LIT_INTEGER ']' ':' litList   { $$ = astCreate(AST_VECTOR_DECL_WITH_PARAM, $1, $3,astCreate(AST_SYMBOL, $5, 0, 0, 0, 0), $8, 0); }
+    | TK_IDENTIFIER '=' types '[' LIT_INTEGER ']'                { $$ = astCreate(AST_VECTOR_DECL, $1, $3,astCreate(AST_SYMBOL, $5, 0, 0, 0, 0), 0, 0); }
     ;
 
 block: '{' commandList '}'                  { $$ = astCreate(AST_CMD_BLOCK, 0, $2, 0, 0, 0); }             

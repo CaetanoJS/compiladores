@@ -26,6 +26,16 @@
 #define TAC_READ 19
 #define TAC_RETURN 20
 #define TAC_COPY_VECTOR 21
+#define TAC_VAR_INIT_ATTR 22
+#define TAC_VAR_VECTOR_INIT 23
+#define TAC_VAR_VECTOR_INIT_ATTR 24
+#define TAC_VECTOR_INIT_PARAMS 25
+#define TAC_FUNC_DECL 26
+#define TAC_FUNC_PARAMS_DECL 27
+#define TAC_BEGIN_FUN 28
+#define TAC_END_FUN 29
+#define TAC_PRINT 30
+#define TAC_PRINT_ARGS 31
 
 
 typedef struct tac_node

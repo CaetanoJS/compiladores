@@ -1,10 +1,13 @@
 // UFRGS - Compiladores - Marcelo Johann - 2020/1
 
 a = int: 2;
-mat = int [10]; 
+mat = int [3]: 1 2 3; 
 b = int: 4;
-main () = int
+c = int: 1;
+main (x = int, c = char) = int
   {
+    print a + a, b > c
+    read a
     mat[2 + 2] = 1 + 3
   };
 

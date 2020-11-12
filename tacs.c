@@ -28,6 +28,56 @@ void tacPrint(TAC* tac)
             fprintf(stderr, "TAC_JUMP");
             break;   
         }
+        case TAC_PRINT_ARGS:
+        {
+            fprintf(stderr, "TAC_PRINT_ARGS");
+            break;          
+        }
+        case TAC_PRINT:
+        {
+            fprintf(stderr, "TAC_PRINT");
+            break;        
+        }
+        case TAC_END_FUN:
+        {
+            fprintf(stderr, "TAC_END_FUN");
+            break;   
+        }
+        case TAC_FUNC_DECL:
+        {
+            fprintf(stderr, "TAC_FUNC_DECL");
+            break;      
+        }
+        case TAC_FUNC_PARAMS_DECL:
+        {
+            fprintf(stderr, "TAC_FUNC_PARAMS_DECL");
+            break;    
+        }
+        case TAC_BEGIN_FUN:
+        {
+            fprintf(stderr, "TAC_BEGIN_FUN");
+            break;   
+        }
+        case TAC_VAR_VECTOR_INIT_ATTR:
+        {
+            fprintf(stderr, "TAC_VAR_VECTOR_INIT_ATTR");
+            break;     
+        }
+        case TAC_VECTOR_INIT_PARAMS:
+        {
+            fprintf(stderr, "TAC_VECTOR_INIT_PARAMS");
+            break;          
+        }
+        case TAC_VAR_VECTOR_INIT:
+        {
+            fprintf(stderr, "TAC_VAR_VECTOR_INIT");
+            break; 
+        }
+        case TAC_VAR_INIT_ATTR:
+        {
+            fprintf(stderr, "TAC_VAR_INIT_ATTR");
+            break;   
+        }
         case TAC_COPY_VECTOR:
         {
             fprintf(stderr, "TAC_COPY_VECTOR");
@@ -183,6 +233,60 @@ TAC* generateCode(AST *node)
 
     switch (node->type)
     {
+        case AST_VARIABLE_DECL:
+        {
+            return tacJoin(code[1], tacCreate(TAC_VAR_INIT_ATTR, node->symbol, code[1]?code[1]->res:0, 0));
+        }
+        case AST_PRINT:
+        {
+            return tacJoin(code[0], tacCreate(TAC_PRINT, 0, 0, 0));
+        }
+        case AST_PRINT_ARGS:
+        {
+            return tacJoin(tacJoin(code[0], tacCreate(TAC_PRINT_ARGS, code[0]->res, 0, 0)), code[1]);
+        }
+        case AST_PRINT_ARGS_LIST:
+        {
+            return tacJoin(tacJoin(code[0], tacCreate(TAC_PRINT_ARGS, code[0]->res, 0, 0)), code[1]);
+        }
+        case AST_CMD_BLOCK:
+        {
+            HASH_NODE *beginLabel = 0;
+            HASH_NODE *endLabel = 0;
+            TAC *beginFuncTac = 0;
+            TAC *endFuncTac = 0;
+            beginLabel = makeLabel();
+            endLabel = makeLabel();
+            beginFuncTac = tacCreate(TAC_BEGIN_FUN, beginLabel, 0, 0);
+            endFuncTac = tacCreate(TAC_END_FUN, endLabel, 0, 0);
+            return tacJoin(beginFuncTac, tacJoin(code[0], endFuncTac));
+        }
+        case AST_FUNCTION_DECL:
+        {
+            return tacJoin(code[0], tacJoin(tacCreate(TAC_FUNC_DECL, node->symbol, 0, 0), code[2]));
+        }
+        case AST_PARAMS_FUNC:
+        {
+            return tacJoin(tacCreate(TAC_FUNC_PARAMS_DECL, node->symbol, 0, 0),code[1]);
+        }
+        case AST_PARAMS_FUNC_LIST:
+        {
+            return tacJoin(tacCreate(TAC_FUNC_PARAMS_DECL, node->symbol, 0, 0),code[1]);
+        }
+        case AST_VECTOR_DECL_WITH_PARAM:
+        {
+            return tacJoin(code[2], tacCreate(TAC_VAR_VECTOR_INIT_ATTR, node->symbol, code[1]?code[1]->res:0, 0));
+            break;   
+        }
+        case AST_LIT_LIST:
+        {
+            return tacJoin(tacCreate(TAC_VECTOR_INIT_PARAMS, code[0]->res, 0, 0),code[1]);
+            break;
+        }
+        case AST_VECTOR_DECL:
+        {
+            return tacJoin(code[1], tacCreate(TAC_VAR_VECTOR_INIT, node->symbol, code[1]?code[1]->res:0, 0));
+        }
         case AST_IF:
         {
             TAC *jumpTac = 0;
