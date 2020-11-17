@@ -23,6 +23,26 @@ void tacPrint(TAC* tac)
     fprintf(stderr, "TAC(");
     switch (tac->type)
     {
+        case TAC_WHILE:
+        {
+            fprintf(stderr, "TAC_WHILE");
+            break;
+        }
+        case TAC_RETURN:
+        {
+            fprintf(stderr, "TAC_RETURN");
+            break;       
+        }
+        case TAC_FUNC_CALL_ARGS:
+        {
+            fprintf(stderr, "TAC_FUNC_CALL_ARGS");
+            break;           
+        }
+        case TAC_FUNC_CALL:
+        {
+            fprintf(stderr, "TAC_FUNC_CALL");
+            break;           
+        }
         case TAC_JUMP:
         {
             fprintf(stderr, "TAC_JUMP");
@@ -233,23 +253,53 @@ TAC* generateCode(AST *node)
 
     switch (node->type)
     {
+        case AST_LOOP:
+        {
+            break;
+        }
+        case AST_WHILE:
+        {
+            HASH_NODE *newLabel = 0;
+            HASH_NODE *newLabelRepeat = 0;
+            TAC *labelTac = 0;
+            TAC *tacRepeat = 0;
+            TAC *labelTacRepeat = 0;
+            newLabel = makeLabel();
+            newLabelRepeat = makeLabel();
+            labelTac = tacCreate(TAC_LABEL, newLabel, 0, 0);
+            labelTacRepeat = tacCreate(TAC_LABEL, newLabelRepeat, 0, 0);
+            tacRepeat = tacCreate(TAC_JUMP, newLabelRepeat, 0, 0);
+            return tacJoin(tacJoin(labelTacRepeat, tacCreate(TAC_JFALSE, newLabel, code[0]->res, 0)), tacJoin(code[1], tacJoin(tacRepeat, labelTac)));
+        }
+        case AST_RETURN:
+        {
+            return tacJoin(code[0], tacCreate(TAC_RETURN, code[0]->res, 0, 0));  
+        }
+        case AST_FUNCTION_CALL:
+        {
+            return tacJoin(code[0], tacCreate(TAC_FUNC_CALL, node->symbol, 0, 0));
+        }
+        case AST_FUNCTION_ARGS:
+        {
+            return tacJoin(tacJoin(code[0], tacCreate(TAC_FUNC_CALL_ARGS, code[0]->res, 0, 0)), code[1]);
+        }
+        case AST_FUNCTION_ARGS_LIST:
+        {
+            return tacJoin(tacJoin(code[0], tacCreate(TAC_FUNC_CALL_ARGS, code[0]->res, 0, 0)), code[1]);
+        }
         case AST_VARIABLE_DECL:
         {
             return tacJoin(code[1], tacCreate(TAC_VAR_INIT_ATTR, node->symbol, code[1]?code[1]->res:0, 0));
         }
-        case AST_PRINT:
-        {
-            return tacJoin(code[0], tacCreate(TAC_PRINT, 0, 0, 0));
-        }
         case AST_PRINT_ARGS:
         {
-            return tacJoin(tacJoin(code[0], tacCreate(TAC_PRINT_ARGS, code[0]->res, 0, 0)), code[1]);
+            return tacJoin(tacJoin(code[0], tacCreate(TAC_PRINT, code[0]->res, 0, 0)), code[1]);
         }
         case AST_PRINT_ARGS_LIST:
         {
-            return tacJoin(tacJoin(code[0], tacCreate(TAC_PRINT_ARGS, code[0]->res, 0, 0)), code[1]);
+            return tacJoin(tacJoin(code[0], tacCreate(TAC_PRINT, code[0]->res, 0, 0)), code[1]);
         }
-        case AST_CMD_BLOCK:
+        case AST_FUNCTION_DECL:
         {
             HASH_NODE *beginLabel = 0;
             HASH_NODE *endLabel = 0;
@@ -259,11 +309,7 @@ TAC* generateCode(AST *node)
             endLabel = makeLabel();
             beginFuncTac = tacCreate(TAC_BEGIN_FUN, beginLabel, 0, 0);
             endFuncTac = tacCreate(TAC_END_FUN, endLabel, 0, 0);
-            return tacJoin(beginFuncTac, tacJoin(code[0], endFuncTac));
-        }
-        case AST_FUNCTION_DECL:
-        {
-            return tacJoin(code[0], tacJoin(tacCreate(TAC_FUNC_DECL, node->symbol, 0, 0), code[2]));
+            return tacJoin(code[0], tacJoin(tacCreate(TAC_FUNC_DECL, node->symbol, 0, 0), tacJoin(beginFuncTac,tacJoin(code[2], endFuncTac))));
         }
         case AST_PARAMS_FUNC:
         {

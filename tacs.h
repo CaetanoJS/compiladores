@@ -36,6 +36,9 @@
 #define TAC_END_FUN 29
 #define TAC_PRINT 30
 #define TAC_PRINT_ARGS 31
+#define TAC_FUNC_CALL 32
+#define TAC_FUNC_CALL_ARGS 33
+#define TAC_WHILE 34
 
 
 typedef struct tac_node
