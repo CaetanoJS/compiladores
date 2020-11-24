@@ -1,3 +1,5 @@
+/* Caetano Jaeger Stradolini */
+
 #include "tacs.h"
 
 TAC* tacCreate(int type, HASH_NODE *res, HASH_NODE *op1, HASH_NODE *op2)
@@ -23,6 +25,11 @@ void tacPrint(TAC* tac)
     fprintf(stderr, "TAC(");
     switch (tac->type)
     {
+        case TAC_LOOP_IDENTIFIER_VALUE:
+        {
+            fprintf(stderr, "TAC_WHILE_IDENTIFIER_VALUE");
+            break;
+        }
         case TAC_WHILE:
         {
             fprintf(stderr, "TAC_WHILE");
@@ -255,6 +262,20 @@ TAC* generateCode(AST *node)
     {
         case AST_LOOP:
         {
+            HASH_NODE *newLabel = 0;
+            HASH_NODE *newLabelRepeat = 0;
+            TAC *labelTac = 0;
+            TAC *tacRepeat = 0;
+            TAC *labelTacRepeat = 0;
+            newLabel = makeLabel();
+            newLabelRepeat = makeLabel();
+            labelTac = tacCreate(TAC_LABEL, newLabel, 0, 0);
+            tacRepeat = tacCreate(TAC_JUMP, newLabelRepeat, 0, 0);
+            labelTacRepeat = tacCreate(TAC_LABEL, newLabelRepeat, 0, 0);
+            return tacJoin(
+                    tacJoin(code[0],tacCreate(
+                        TAC_VAR_INIT_ATTR, code[0]->res,0,0)),tacJoin(tacJoin(labelTacRepeat,
+                            tacCreate(TAC_JFALSE, newLabel, code[1]->res, code[2]->res)), tacJoin(code[3], tacJoin(tacRepeat,labelTac))));
             break;
         }
         case AST_WHILE:
@@ -269,7 +290,7 @@ TAC* generateCode(AST *node)
             labelTac = tacCreate(TAC_LABEL, newLabel, 0, 0);
             labelTacRepeat = tacCreate(TAC_LABEL, newLabelRepeat, 0, 0);
             tacRepeat = tacCreate(TAC_JUMP, newLabelRepeat, 0, 0);
-            return tacJoin(tacJoin(labelTacRepeat, tacCreate(TAC_JFALSE, newLabel, code[0]->res, 0)), tacJoin(code[1], tacJoin(tacRepeat, labelTac)));
+            return tacJoin(tacJoin(labelTacRepeat, tacJoin(code[0], tacCreate(TAC_JFALSE, newLabel, code[0]->res, 0))), tacJoin(code[1], tacJoin(tacRepeat, labelTac)));
         }
         case AST_RETURN:
         {
@@ -389,7 +410,7 @@ TAC* generateCode(AST *node)
         }
         case AST_VECTOR:
         {
-            result = tacJoin(code[0], tacCreate(TAC_VECTOR, node->symbol, code[0]?code[0]->res:0, 0));
+            result = tacJoin(code[0], tacJoin(tacCreate(TAC_VECTOR, node->symbol, code[0]?code[0]->res:0, 0), tacCreate(TAC_COPY, makeTemp(), node->symbol, code[0]->res)));
             break;
         }
         case AST_SYMBOL:

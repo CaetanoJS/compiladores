@@ -33,15 +33,16 @@ int main(int argc, char ** argv)
 
     yyparse();
 
-    //astPrint(getAST(), 0);
+    //astPrint(getAST(), 0); // Etapa 3
     hashPrint();
-    // astToFile(getAST(), outputFile);
-    check_and_set_declarations(getAST()); 
-    check_undeclared(); 
-    check_commands(getAST()); 
-    set_func_params(getAST()); 
-    check_func_call(getAST());
-    check_syntax_errors();
+    // astToFile(getAST(), outputFile); // Etapa 3
+    check_and_set_declarations(getAST()); // Etapa 4
+    check_undeclared(); // Etapa 4
+    check_commands(getAST()); // Etapa 4
+    set_func_params(getAST()); // Etapa 4
+    check_func_call(getAST()); // Etapa 4
+    check_syntax_errors(); // Etapa 4
+    tacPrintBackwards(generateCode(getAST())); // Etapa 5
     fprintf(stderr, "Super! Compilation successful! \n");
     exit(0);
 }

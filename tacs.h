@@ -1,4 +1,4 @@
-
+/* Caetano Jaeger Stradolini */
 #ifndef TACS_HEADER
 #define TACS_HEADER
 
@@ -39,6 +39,8 @@
 #define TAC_FUNC_CALL 32
 #define TAC_FUNC_CALL_ARGS 33
 #define TAC_WHILE 34
+#define TAC_LOOP_IDENTIFIER_VALUE 35
+#define TAC_LOOP 36
 
 
 typedef struct tac_node

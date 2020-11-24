@@ -1,8 +1,8 @@
 # Caetano Jaeger Stradolini
-# Etapa 4 do trabalho de compiladores
+# Etapa 5 do trabalho de compiladores
 
-etapa3: main.o lex.yy.o parser.tab.o hash.o ast.o semantic.o tacs.o
-	gcc main.o lex.yy.o parser.tab.o hash.o ast.o semantic.o tacs.o -o etapa4
+etapa5: main.o lex.yy.o parser.tab.o hash.o ast.o semantic.o tacs.o
+	gcc main.o lex.yy.o parser.tab.o hash.o ast.o semantic.o tacs.o -o etapa5
 
 main.o: main.c
 	gcc -c main.c
@@ -32,4 +32,4 @@ lex.yy.c: scanner.l
 	flex scanner.l
 
 clean:
-	rm lex.yy.c parser.tab.c *.o etapa4.exe
+	rm lex.yy.c parser.tab.c *.o etapa5

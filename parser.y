@@ -76,7 +76,7 @@
 
 %%
 
-programa: decl { root = $$ ; tacPrintBackwards(generateCode($1)); }
+programa: decl { root = $$ ; }
     ;
     
 decl: dec ';' decl  { $$ = astCreate(AST_DECLARATION, 0, $1, $3, 0, 0); }
